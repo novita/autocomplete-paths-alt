@@ -1,9 +1,9 @@
 {
-  "name": "autocomplete-paths",
+  "name": "autocomplete-paths-alt",
   "main": "./lib/autocomplete-paths",
   "version": "1.0.2",
   "description": "Adds path autocompletion to autocomplete+",
-  "repository": "https://github.com/atom-community/autocomplete-paths",
+  "repository": "https://github.com/novita/autocomplete-paths-alt",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
