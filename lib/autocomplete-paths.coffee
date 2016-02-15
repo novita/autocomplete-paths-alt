@@ -2,6 +2,15 @@ module.exports =
   provider: null
   ready: false
 
+  config:
+    fileExtensionsExclude:
+      title: '拡張子をつけない'
+      description: '拡張子をつけないスコープをコンマ区切りで指定'
+      type: 'array'
+      default: []
+      items:
+        type: 'string'
+        
   activate: ->
     @ready = true
 

@@ -7,6 +7,7 @@ module.exports =
 class PathsProvider
   id: 'autocomplete-paths-pathsprovider'
   selector: '*'
+  # wordRegex: /(?:[a-zA-Z]:)?.*(?:\/|\\\\?).*/g
   wordRegex: /(?:[a-zA-Z]:)?[a-zA-Z0-9./\\_-]*(?:\/|\\\\?)[a-zA-Z0-9./\\_-]*/g
   cache: []
 
@@ -14,13 +15,15 @@ class PathsProvider
     return [] unless options.editor? and options.buffer? and options.cursor?
     editorPath = options.editor?.getPath()
     return [] unless editorPath?.length
+    # basePath は現在のドキュメントのフォルダのパス
     basePath = path.dirname(editorPath)
     return [] unless basePath?
 
+    # prefixは補完に引き渡される文字列
     prefix = @prefixForCursor(options.editor, options.buffer, options.cursor, options.position)
     return [] unless prefix.length
 
-    suggestions = @findSuggestionsForPrefix(options.editor, basePath, prefix)
+    suggestions = @findSuggestionsForPrefix(options.editor, options.cursor, basePath, prefix)
     return [] unless suggestions.length
     return suggestions
 
@@ -50,10 +53,22 @@ class PathsProvider
     else
       currentBufferPosition
 
-  findSuggestionsForPrefix: (editor, basePath, prefix) ->
+  findSuggestionsForPrefix: (editor, cursor, basePath, prefix) ->
     return [] unless basePath?
 
+    projectPath = atom.project.getPaths()[0]
+    rootPath = ''
+    try
+      rootPath = fs.readFileSync projectPath + '/.rootpath', 'utf8'
+      rootPath = rootPath.replace(/[\n\r].*/, '').trim()
+    rootRegexp = new RegExp '^' + rootPath
+    # 指定したルートフォルダがある場合で"/"から始まる場合
+    if rootPath && basePath.match(rootRegexp) && prefix.match(/^\//)
+      prefix = prefix.replace(/^\//, '')
+      basePath = rootPath
     prefixPath = path.resolve(basePath, prefix)
+    scopeDecriptor = cursor.getScopeDescriptor()
+    fileExtensionsExclude = atom.config.get('autocomplete-paths-alt.fileExtensionsExclude')
 
     if prefix.match(/[/\\]$/)
       directory = prefixPath
@@ -91,6 +106,11 @@ class PathsProvider
         label = 'Dir'
       else if stat.isFile()
         label = 'File'
+        # strip the file extension if the current descriptor is listed in the config
+        for key, source of fileExtensionsExclude
+          if scopeDecriptor.scopes.indexOf(source) >= 0
+            result = result.replace(/\..+$/, '')
+            break
       else
         continue
 
