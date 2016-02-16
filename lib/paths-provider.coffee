@@ -67,8 +67,16 @@ class PathsProvider
       prefix = prefix.replace(/^\//, '')
       basePath = rootPath
     prefixPath = path.resolve(basePath, prefix)
-    scopeDecriptor = cursor.getScopeDescriptor()
+    # プロジェクト設定でスコープの指定があった場合
     fileExtensionsExclude = atom.config.get('autocomplete-paths-alt.fileExtensionsExclude')
+    scopeDecriptor = cursor.getScopeDescriptor()
+    scopeFlag = false
+    # プロジェクト設定で設定されたスコープの場合は拡張子をつけない
+    for key, source of fileExtensionsExclude
+      if scopeDecriptor.scopes.indexOf(source) >= 0
+        scopeFlag = true
+        break
+
 
     if prefix.match(/[/\\]$/)
       directory = prefixPath
@@ -106,11 +114,8 @@ class PathsProvider
         label = 'Dir'
       else if stat.isFile()
         label = 'File'
-        # strip the file extension if the current descriptor is listed in the config
-        for key, source of fileExtensionsExclude
-          if scopeDecriptor.scopes.indexOf(source) >= 0
-            result = result.replace(/\..+$/, '')
-            break
+        if scopeFlag
+          result = result.replace(/\..+$/, '')
       else
         continue
 

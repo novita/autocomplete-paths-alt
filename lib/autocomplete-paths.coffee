@@ -4,7 +4,7 @@ module.exports =
 
   config:
     fileExtensionsExclude:
-      title: '拡張子をつけない'
+      title: '拡張子をつけないスコープ'
       description: '拡張子をつけないスコープをコンマ区切りで指定'
       type: 'array'
       default: []
