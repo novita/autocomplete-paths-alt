@@ -8,7 +8,7 @@ class PathsProvider
   id: 'autocomplete-paths-pathsprovider'
   selector: '*'
   # wordRegex: /(?:[a-zA-Z]:)?.*(?:\/|\\\\?).*/g
-  wordRegex: /(?:[a-zA-Z]:)?[a-zA-Z0-9./\\_-]*(?:\/|\\\\?)[a-zA-Z0-9./\\_-]*/g
+  wordRegex: /(?:<%=\s?path\s?%>)?(?:[a-zA-Z]:)?[a-zA-Z0-9./\\_-]*(?:\/|\\\\?)[a-zA-Z0-9./\\_-]*/g
   cache: []
 
   requestHandler: (options = {}) =>
@@ -65,6 +65,10 @@ class PathsProvider
     # 指定したルートフォルダがある場合で"/"から始まる場合
     if rootPath && basePath.match(rootRegexp) && prefix.match(/^\//)
       prefix = prefix.replace(/^\//, '')
+      basePath = rootPath
+    # 指定したルートフォルダがある場合で"<%= path %>"から始まる場合
+    if rootPath && basePath.match(rootRegexp) && prefix.match(/<%=\s?path\s?%>/)
+      prefix = prefix.replace(/.*<%=\s?path\s?%>/, '')
       basePath = rootPath
     prefixPath = path.resolve(basePath, prefix)
     # プロジェクト設定でスコープの指定があった場合
