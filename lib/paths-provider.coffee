@@ -60,7 +60,7 @@ class PathsProvider
     rootPath = ''
     try
       rootPath = fs.readFileSync projectPath + '/.rootpath', 'utf8'
-      rootPath = rootPath.replace(/[\n\r].*/, '').trim()
+      rootPath = projectPath + '/' + rootPath.replace(/[\n\r].*/, '').trim()
     rootRegexp = new RegExp '^' + rootPath
     # 指定したルートフォルダがある場合で"/"から始まる場合
     if rootPath && basePath.match(rootRegexp) && prefix.match(/^\//)
